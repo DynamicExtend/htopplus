@@ -27,25 +27,25 @@ function global:Get-Values{
     $global:computerName = $env:COMPUTERNAME
     $global:cpuLoad = (Get-WmiObject Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
     $global:cpu = Get-WmiObject -Class Win32_Processor -ComputerName. | Select-Object -Property [a-z]*
-    $global:processes = Get-Process
     $function:prompt = "$ "
 }
-function Render-Values{
-    clear
-    Write-ColorOutput Blue ("Computer Name: $computerName")
-    Write-ColorOutput Blue ("Operating System: $os")
-    Write-ColorOutput Blue ("Active Tasks: $TasksActive")
+function Render-CPU{
     if ($cpuLoad -lt 70) {
         $host.privatedata.ProgressBackgroundColor = "Black"
         $host.privatedata.ProgressBackgroundColor = "Green";
-        Write-ColorOutput Green ("Aktuelle CPU-Last: `n $cpuLoad%")
         Write-Progress -PercentComplete ($cpuLoad/100*100) -Status "$($cpu.Name): " -Activity "$cpuLoad of 100%"
     }else {
         $host.privatedata.ProgressBackgroundColor = "Black"
         $host.privatedata.ProgressBackgroundColor = "Red";
-        Write-ColorOutput Red ("Aktuelle CPU-Last: `n $cpuLoad% ") 
         Write-Progress -PercentComplete ($cpuLoad/100*100) -Status "$($cpu.Name): " -Activity "$cpuLoad of 100%"
     }
+}
+function Render-Values{
+    clear
+    Get-Values
+    Write-ColorOutput Blue ("Computer Name: $computerName")
+    Write-ColorOutput Blue ("Operating System: $os")
+    Render-CPU
     Sleep 3
 }
 
